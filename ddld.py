@@ -44,15 +44,21 @@ def recursiveDownload(urlList, arguments = ""):
             recursiveDownload(getNextLevel(url))
         else:
             local = localDir(url)
-            cmd = 'aria2c -d ' + local + " " + arguments + " " + url
+            #if 'event_cl' in local:
+            cmd = 'aria2c -x 8 --all-proxy=127.0.0.1:8119 -d' + local + " " + arguments + " " + url
+            print(cmd)
             cmd = re.sub("  ", " ", cmd)
             os.system(cmd)
 
+
 if __name__ == "__main__":
-    # if len(sys.argv) != 2:
-    # 	print("\n\nEnter URL to SCRAPE as COMMAND LINE ARGUMENT\n\n")
-    # else:
-	# 	recur(sys.argv[1], os.getcwd()+"/")
-    url = r'https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2017_06//0070010102/xti/'
-    #next1 = getNextLevel('https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2017_06//0070010102/xti//event_cl/')
-    recursiveDownload([url])
+    #url = r'https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2017_06//0070010102/xti/'
+
+    urlList = []
+
+    path = r"H:\NICER\PSR-B1821-24\list.txt"
+    with open(path, 'r') as f:
+        for line in f:
+            urlList.append(line.strip('\n'))
+
+    recursiveDownload(urlList)
