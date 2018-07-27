@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import os
 import urllib.parse as urp
-import sys, re
+import sys, re, getopt
 
 def assure_path_exists(path):
     if not os.path.exists(path):
@@ -40,25 +40,123 @@ def localDir(url):
 
 def recursiveDownload(urlList, arguments = ""):
     for url in urlList:
+        print(url)
         if isPath(url):
             recursiveDownload(getNextLevel(url))
         else:
             local = localDir(url)
-            #if 'event_cl' in local:
-            cmd = 'aria2c -x 8 --all-proxy=127.0.0.1:8119 -d' + local + " " + arguments + " " + url
+            cmd = 'aria2c -x 8 -k 1048576 --all-proxy=127.0.0.1:8119 -d ' + local + " " + arguments + " " + url
             print(cmd)
             cmd = re.sub("  ", " ", cmd)
             os.system(cmd)
 
 
+def usage():
+    """
+The output  configuration file contents.
+
+Usage: ddld.py [-i|--input-file,[path]] [-x|--max-connection,[number|'m']] [-p|--proxy,[http://][USER:PASSWORD@]HOST[:PORT]] [-h|--help] [-d | --dir, [directory]]
+
+Description
+            -i,--input-file         Downloads the URIs listed in FILE
+            -x,--max-connection     The maximum number of connections to one server for each download. Default: 1, MAX: 16
+            -p,--proxy              Set proxy server(http)
+            -d,--dir                Save directories to
+            -h,--help               Display help information.
+for example:
+    python ddld.py -i downloadList.txt
+    python ddld.py -x 8
+    python ddld.py -p 127.0.0.1:8119
+    python ddld.py -d ./download
+"""
+
+def isValidProxy(addr):
+    ipPattern = r"((?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d))))"
+    try:
+        ip, port = addr.split(":")
+    except Exception as e:
+        print("Wrong Proxy format")
+        return False
+    if not re.match(ipPattern, ip):
+        print("Wrong Proxy format")
+        return False
+    if int(port) < 1 or int(port) > 65535:
+        print("Wrong Proxy format")
+        return False
+    return True
+
+def checkProxy(proxy):
+    try:
+        requests.get(
+            "http://example.com",
+            proxies={'http': proxy},
+            timeout=0.5
+        )
+    except Exception as e:
+        print("Failed connected to proxy server")
+        sys.exit(1)
+    else:
+        return True
+
+def getOpt():
+    try:
+        options, args = getopt.getopt(sys.argv[1:], "i:x:p:d:h", ["--input-file=", "--max-connection=", "--proxy=", "--dir=" "help"])
+    except getopt.GetoptError as err:
+        print(str(err))
+        print(usage.__doc__)
+        sys.exit(1)
+
+    ariaArg = ""
+    # print("options>>", o, "<< argu>>", a, "<<")
+    opt = {'connections' : '1',}
+
+    for o, a in options:
+        if o in ("-i", "--input-file"):
+            try:
+                with open(a,'r'):
+                    pass
+                opt['input'] = os.path.abspath(a);
+            except Exception as e:
+                print(e)
+                sys.exit(1)
+        elif o in ("-x", "--max-connection"):
+            if int(a) > 0 and int(a) <= 16:
+                opt['connections'] = a;
+            else:
+                print('argument "-x" must in range 1-16')
+                sys.exit(1)
+        elif o in ("-p", "--proxy"):
+            if isValidProxy(a):
+                checkProxy(a)
+                opt['proxy'] = a
+            else:
+                sys.exit(1)
+        elif o in ("-d", "--dir"):
+            p = os.path.abspath(a)
+            if os.path.exists(p):
+                opt['savepath'] = p
+            else:
+                print("Save directory not exsits")
+                sys.exit(1)
+    return opt
+
 if __name__ == "__main__":
     #url = r'https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2017_06//0070010102/xti/'
 
-    urlList = []
+    # urlList = []
+    #
+    # path = r"H:\NICER\B0540-69\list.txt"
+    # with open(path, 'r') as f:
+    #     for line in f:
+    #         urlList.append(line.strip('\n'))
 
-    path = r"H:\NICER\PSR-B1821-24\list.txt"
-    with open(path, 'r') as f:
-        for line in f:
-            urlList.append(line.strip('\n'))
+    #recursiveDownload(urlList)
 
-    recursiveDownload(urlList)
+    opt = getOpt()
+    if not 'input' in opt:
+        print("No input file in arguments")
+        sys.exit(1)
+    if not 'savepath' in opt:
+        print("No save directory in arguments")
+        sys.exit(1)
+    print(opt)
