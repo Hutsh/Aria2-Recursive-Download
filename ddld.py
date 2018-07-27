@@ -60,9 +60,7 @@ def recursiveDownload(aria2cPath, urlList, arguments):
 def usage():
     """
 The output  configuration file contents.
-
 Usage: ddld.py [-i|--input-file,[path]] [-x|--max-connection,[number|'m']] [-p|--proxy,[http://][USER:PASSWORD@]HOST[:PORT]] [-h|--help] [-d | --dir, [directory]]
-
 Description
             -i,--input-file         Downloads the URIs listed in FILE
             -x,--max-connection     The maximum number of connections to one server for each download. Default: 1, MAX: 16
@@ -172,4 +170,3 @@ if __name__ == "__main__":
 
 
     recursiveDownload(aria2cPath, urlList, downloadArg)
-

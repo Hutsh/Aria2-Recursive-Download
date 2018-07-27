@@ -1,3 +1,4 @@
-https://example.com/www/html
-https://example.com/www/html
-https://example.com/www/html
+https://example.com/FTP/example/data/example/2018_06//12345676789/data0/
+https://example.com/FTP/example/data/example/2018_07//12345676789/data1/
+https://example.com/FTP/example/data/example/2018_08//12345676789/data2/
+https://example.com/FTP/example/data/example/2018_09//12345676789/data3/
