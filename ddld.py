@@ -147,10 +147,6 @@ def getOpt():
     return opt
 
 if __name__ == "__main__":
-    url = r'https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2017_06//0070010102/xti/'
-    local = localDir(url)
-
-
 
     opt = getOpt()
     if not 'input' in opt:
@@ -166,7 +162,6 @@ if __name__ == "__main__":
         for line in f:
             urlList.append(line.strip('\n'))
 
-    #print(urlList)
     downloadArg = '-x ' + opt['connections'] + " -k 1048576"
     if 'proxy' in opt:
         downloadArg += " --all-proxy=" + opt['proxy']
