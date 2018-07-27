@@ -1,4 +1,11 @@
 # Aria2 Recursive Download
+#### Requirement
+
+- Python3
+- pip install bs4
+- pip install requests
+- pip install urllib
+
 #### Usage: 
 
 ```ddld.py [-i|--input-file,[path]][-x|--max-connection,[number|'m']] [-p|--proxy,[http://][USER:PASSWORD@]HOST[:PORT]][-h|--help] [-d | --dir, [directory]]```
