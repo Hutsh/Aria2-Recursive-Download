@@ -46,7 +46,6 @@ def recursiveDownload(aria2cPath, urlList, arguments):
         if isPath(url):
             recursiveDownload(aria2cPath, getNextLevel(url), arguments)
         else:
-
             apath = os.path.abspath(opt['savepath'] + localDir(url))
             print(apath)
             arguments += " -d " + apath
@@ -158,7 +157,8 @@ if __name__ == "__main__":
     urlList = []
     with open(opt['input'], 'r') as f:
         for line in f:
-            urlList.append(line.strip('\n'))
+            if line:
+                urlList.append(line.strip('\n'))
 
     downloadArg = '-x ' + opt['connections'] + " -k 1048576"
     if 'proxy' in opt:
