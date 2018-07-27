@@ -52,8 +52,6 @@ def recursiveDownload(aria2cPath, urlList, arguments):
 
 def usage():
     """
-The output  configuration file contents.
-
 Usage: ddld.py [-i|--input-file,[path]] [-x|--max-connection,[number|'m']] [-p|--proxy,[http://][USER:PASSWORD@]HOST[:PORT]] [-h|--help] [-d | --dir, [directory]]
 
 Description
