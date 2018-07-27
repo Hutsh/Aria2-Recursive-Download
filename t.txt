@@ -1,3 +1,0 @@
-https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2017_10//1020010112/xti/
-https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2017_11//1020010115/log/
-https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2018_03//1020010127/xti/

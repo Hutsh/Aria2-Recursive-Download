@@ -15,7 +15,7 @@
 
 #### Example
 
-   ```python ddld.py -x 8 -i test.txt -d ./ -p 127.0.0.1:1080```
+   ```python ddld.py -x 8 -i exampleDownloadList.txt -d ./ -p 127.0.0.1:1080```
 
 
 
