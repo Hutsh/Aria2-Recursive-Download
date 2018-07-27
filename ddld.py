@@ -2,6 +2,7 @@ import requests
 import os
 import urllib.parse as urp
 import sys, re, getopt
+import platform
 
 opt = {'connections': '1', }
 
@@ -60,7 +61,10 @@ def recursiveDownload(aria2cPath, urlList, arguments):
             prearg = arguments
             arguments += " -d " + apath
 
-            cmd = aria2cPath + " --continue=true" + " " + arguments + " " + url
+            if platform.system() == 'Linux':
+                cmd = 'aria2c' + " --continue=true" + " " + arguments + " " + url
+            else:
+                cmd = aria2cPath + " --continue=true" + " " + arguments + " " + url
             print(cmd)
             cmd = re.sub("  ", " ", cmd)
             os.system(cmd)
@@ -153,13 +157,13 @@ def getOpt():
                 print("Save directory not exsits")
                 sys.exit(1)
     return opt
-
-def test():
-    url = r'https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2018_06//1020180205/xti/event_cl/'
-    list = getNextLevel_bak(url)
-
-    for i in list:
-        print(i)
+#
+# def test():
+#     url = r'https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2018_06//1020180205/xti/event_cl/'
+#     list = getNextLevel_bak(url)
+#
+#     for i in list:
+#         print(i)
 
 if __name__ == "__main__":
 
