@@ -1,5 +1,4 @@
 import requests
-from bs4 import BeautifulSoup
 import os
 import urllib.parse as urp
 import sys, re, getopt
@@ -14,17 +13,27 @@ def get_domain(link):
     return '{uri.scheme}://{uri.netloc}'.format(uri=urp.urlparse(link))
 
 def getNextLevel(url):
-    r = requests.get(url)
-    soup = BeautifulSoup(r.content, "html.parser")
-    icons = soup.find_all("img")
+    r = requests.get(url).content
+    pattern = r'<img src="/icons/(?!back|blank).*?>\s?<a href="([\w_\./-]+)">'
+    pattern = re.compile(pattern)
+    nextlist = pattern.findall(str(r))
+    list = []
+    for next in nextlist:
+        list.append(url+next)
+    return list
 
-    dirList = []
-    for itag in icons:
-        if '/icons/' in itag['src'] and ('blank.gif' not in itag['src']) and ('back.gif' not in itag['src']):
-            next = itag.findNext()
-            dirList.append(url + "/" + next['href'])
-
-    return dirList
+# def getNextLevel_bak(url):
+#     r = requests.get(url)
+#     soup = BeautifulSoup(r.content, "html.parser")
+#     icons = soup.find_all("img")
+#
+#     dirList = []
+#     for itag in icons:
+#         if '/icons/' in itag['src'] and ('blank.gif' not in itag['src']) and ('back.gif' not in itag['src']):
+#             next = itag.findNext()
+#             dirList.append(url + "/" + next['href'])
+#
+#     return dirList
 
 def isPath(url):
     return url.endswith('/')
@@ -48,12 +57,14 @@ def recursiveDownload(aria2cPath, urlList, arguments):
         else:
             apath = os.path.abspath(opt['savepath'] + localDir(url))
             print(apath)
+            prearg = arguments
             arguments += " -d " + apath
 
-            cmd = aria2cPath + " " + arguments + " " + url
+            cmd = aria2cPath + " --continue=true" + " " + arguments + " " + url
             print(cmd)
             cmd = re.sub("  ", " ", cmd)
             os.system(cmd)
+            arguments = prearg
 
 
 def usage():
@@ -93,7 +104,7 @@ def checkProxy(proxy):
         requests.get(
             "http://example.com",
             proxies={'http': proxy},
-            timeout=0.5
+            timeout=2
         )
     except Exception as e:
         print("Failed connected to proxy server")
@@ -142,6 +153,13 @@ def getOpt():
                 print("Save directory not exsits")
                 sys.exit(1)
     return opt
+
+def test():
+    url = r'https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2018_06//1020180205/xti/event_cl/'
+    list = getNextLevel_bak(url)
+
+    for i in list:
+        print(i)
 
 if __name__ == "__main__":
 
