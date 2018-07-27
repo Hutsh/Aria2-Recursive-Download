@@ -38,14 +38,13 @@ def localDir(url):
         path = localDir(path)
     return path
 
-def recursiveDownload(urlList, arguments = ""):
+def recursiveDownload(aria2cPath, urlList, arguments):
     for url in urlList:
         print(url)
         if isPath(url):
-            recursiveDownload(getNextLevel(url))
+            recursiveDownload(aria2cPath, getNextLevel(url), arguments)
         else:
-            local = localDir(url)
-            cmd = 'aria2c -x 8 -k 1048576 --all-proxy=127.0.0.1:8119 -d ' + local + " " + arguments + " " + url
+            cmd = aria2cPath + " " + arguments + " " + url
             print(cmd)
             cmd = re.sub("  ", " ", cmd)
             os.system(cmd)
@@ -64,10 +63,7 @@ Description
             -d,--dir                Save directories to
             -h,--help               Display help information.
 for example:
-    python ddld.py -i downloadList.txt
-    python ddld.py -x 8
-    python ddld.py -p 127.0.0.1:8119
-    python ddld.py -d ./download
+    python ddld.py -i test.txt -d ./ -p 127.0.0.1:1080
 """
 
 def isValidProxy(addr):
@@ -141,17 +137,6 @@ def getOpt():
     return opt
 
 if __name__ == "__main__":
-    #url = r'https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2017_06//0070010102/xti/'
-
-    # urlList = []
-    #
-    # path = r"H:\NICER\B0540-69\list.txt"
-    # with open(path, 'r') as f:
-    #     for line in f:
-    #         urlList.append(line.strip('\n'))
-
-    #recursiveDownload(urlList)
-
     opt = getOpt()
     if not 'input' in opt:
         print("No input file in arguments")
@@ -160,3 +145,20 @@ if __name__ == "__main__":
         print("No save directory in arguments")
         sys.exit(1)
     print(opt)
+
+    urlList = []
+    with open(opt['input'], 'r') as f:
+        for line in f:
+            urlList.append(line.strip('\n'))
+
+    #print(urlList)
+    downloadArg = '-x ' + opt['connections'] + " -k 1048576" + " -d " + opt['savepath']
+    if 'proxy' in opt:
+        downloadArg += " --all-proxy=" + opt['proxy']
+    #print(downloadArg)
+
+    aria2cPath = re.sub(os.path.basename(sys.argv[0]), "", sys.argv[0]) + "aria2\\aria2c.exe"
+    aria2cPath = os.path.abspath(aria2cPath)
+
+    recursiveDownload(aria2cPath, urlList, downloadArg)
+
