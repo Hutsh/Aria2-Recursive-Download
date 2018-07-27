@@ -4,6 +4,8 @@ import os
 import urllib.parse as urp
 import sys, re, getopt
 
+opt = {'connections': '1', }
+
 def assure_path_exists(path):
     if not os.path.exists(path):
             os.makedirs(path)
@@ -30,7 +32,7 @@ def isPath(url):
 def localDir(url):
     if isPath(url):
         pattern = r"https?://[\w\._]+/{1,2}[\w\._]+/{1,2}[\w\._]+/{1,2}[\w\._]+/{1,2}[\w\._]+/{1,2}[\w\._]+/{1,2}"
-        path = re.sub(pattern, "./", url)
+        path = re.sub(pattern, "/", url)
         path = re.sub("//", "/", path)
     else:
         file = os.path.basename(url)
@@ -44,6 +46,11 @@ def recursiveDownload(aria2cPath, urlList, arguments):
         if isPath(url):
             recursiveDownload(aria2cPath, getNextLevel(url), arguments)
         else:
+
+            apath = os.path.abspath(opt['savepath'] + localDir(url))
+            print(apath)
+            arguments += " -d " + apath
+
             cmd = aria2cPath + " " + arguments + " " + url
             print(cmd)
             cmd = re.sub("  ", " ", cmd)
@@ -52,6 +59,8 @@ def recursiveDownload(aria2cPath, urlList, arguments):
 
 def usage():
     """
+The output  configuration file contents.
+
 Usage: ddld.py [-i|--input-file,[path]] [-x|--max-connection,[number|'m']] [-p|--proxy,[http://][USER:PASSWORD@]HOST[:PORT]] [-h|--help] [-d | --dir, [directory]]
 
 Description
@@ -61,7 +70,10 @@ Description
             -d,--dir                Save directories to
             -h,--help               Display help information.
 for example:
-    python ddld.py -i test.txt -d ./ -p 127.0.0.1:1080
+    python ddld.py -i downloadList.txt
+    python ddld.py -x 8
+    python ddld.py -p 127.0.0.1:8119
+    python ddld.py -d ./download
 """
 
 def isValidProxy(addr):
@@ -102,7 +114,7 @@ def getOpt():
 
     ariaArg = ""
     # print("options>>", o, "<< argu>>", a, "<<")
-    opt = {'connections' : '1',}
+
 
     for o, a in options:
         if o in ("-i", "--input-file"):
@@ -135,6 +147,11 @@ def getOpt():
     return opt
 
 if __name__ == "__main__":
+    url = r'https://heasarc.gsfc.nasa.gov/FTP/nicer/data/obs/2017_06//0070010102/xti/'
+    local = localDir(url)
+
+
+
     opt = getOpt()
     if not 'input' in opt:
         print("No input file in arguments")
@@ -150,13 +167,14 @@ if __name__ == "__main__":
             urlList.append(line.strip('\n'))
 
     #print(urlList)
-    downloadArg = '-x ' + opt['connections'] + " -k 1048576" + " -d " + opt['savepath']
+    downloadArg = '-x ' + opt['connections'] + " -k 1048576"
     if 'proxy' in opt:
         downloadArg += " --all-proxy=" + opt['proxy']
-    #print(downloadArg)
+    print(downloadArg)
 
     aria2cPath = re.sub(os.path.basename(sys.argv[0]), "", sys.argv[0]) + "aria2\\aria2c.exe"
     aria2cPath = os.path.abspath(aria2cPath)
+
 
     recursiveDownload(aria2cPath, urlList, downloadArg)
 
