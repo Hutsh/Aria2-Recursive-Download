@@ -60,11 +60,12 @@ def recursiveDownload(aria2cPath, urlList, arguments):
             print(apath)
             prearg = arguments
             arguments += " -d " + apath
+            logpath = os.path.abspath(opt['savepath'] + "/ddld.log")
 
             if platform.system() == 'Linux':
-                cmd = 'aria2c' + " --continue=true" + " " + arguments + " " + url
+                cmd = 'aria2c' + " --continue=true --log="+ logpath + " --log-level=warn" + " " + arguments + " " + url
             else:
-                cmd = aria2cPath + " --continue=true" + " " + arguments + " " + url
+                cmd = aria2cPath + " --continue=true --log="+ logpath + " --log-level=warn" + " " + arguments + " " + url
             print(cmd)
             cmd = re.sub("  ", " ", cmd)
             os.system(cmd)
