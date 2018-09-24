@@ -1,14 +1,10 @@
 from urllib.parse import urlparse
 import re, os
 
-def generate_cmd(url, proxy=''):
+def generate_cmd(url):
     dir, out = get_local_path(url)
     cmd = url + '\n  dir=.' + dir + '\n  out=' + out
-    if proxy == '':
-        return cmd
-    else:
-        cmd = cmd + '\n  http-proxy=' + proxy
-        return cmd
+    return cmd
 
 def get_local_path(url):
     o = urlparse(url)
@@ -29,12 +25,12 @@ def generate_cmd_file(listfile,outfile, proxylist):
     outf = open(outfile, 'w')
     with open(listfile, 'r') as lf:
         for line in lf:
-            url = re.sub(r'\t.+\n', '', line)
+            url = re.sub(r'\t.+', '', line.strip('\n'))
             cmd = generate_cmd(url) + proxy[i] + '\n'
             i += 1
             if(i == nproxy):
                 i = 0
-            print(cmd, end='')
+            print(cmd.strip('\n'))
             outf.write(cmd)
     outf.close()
 
