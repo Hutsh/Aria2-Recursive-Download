@@ -40,7 +40,6 @@ def generate_cmd_file(listfile, proxylist, outfile=''):
     outsh = open(shName, 'w')
 
     shcmd = 'aria2c --input-file=' + outfile + '--log=aria_' + listfile.strip('.txt') + '.log ' + '--log-level=warn --console-log-level=warn --summary-interval=1 --max-connection-per-server=7 ' + '--max-concurrent-downloads=15 --continue=true  --min-split-size=20M ' + '--save-session=' + listfile.strip('.txt') + '.session'
-    
     outsh.write(shcmd)
     outsh.close()
 
