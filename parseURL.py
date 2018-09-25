@@ -1,5 +1,5 @@
 from urllib.parse import urlparse
-import re, os
+import re, os, sys
 
 def generate_cmd(url):
     dir, out = get_local_path(url)
@@ -13,7 +13,9 @@ def get_local_path(url):
     return dir, out
 
 
-def generate_cmd_file(listfile,outfile, proxylist):
+def generate_cmd_file(listfile, proxylist, outfile=''):
+    if outfile == '':
+        outfile = 'cmd_' + listfile
     proxy = []
     for i in range(len(proxylist)):
         proxy.append('\n  http-proxy=' + proxylist[i])
@@ -34,6 +36,14 @@ def generate_cmd_file(listfile,outfile, proxylist):
             outf.write(cmd)
     outf.close()
 
+    shName = 'download_'+ outfile + '.sh'
+    outsh = open(shName, 'w')
+
+    shcmd = 'aria2c --input-file=' + outfile + '--log=aria_' + listfile.strip('.txt') + '.log ' + '--log-level=warn --console-log-level=warn  --summary-interval=1 --max-connection-per-server=7' + '--max-concurrent-downloads=15 --continue=true  --min-split-size=20M ' + '--save-session=' + listfile.strip('.txt') + '.session'
+    outsh.write(shcmd)
+    outsh.close()
+
+
 if __name__ == "__main__":
     #fileinfo is the file contains download files information.
     #fileinfo example:
@@ -43,7 +53,8 @@ if __name__ == "__main__":
     #aria2c --input-file=cmdout.txt --log=aria.log --max-concurrent-downloads=15 --continue=true --min-split-size=20M
     ####################arguments#############
     proxylist = ['http://45.33.109.91:7333','http://23.239.27.216:7333']
-    fileinfo = 'a.txt'
+    proxylist = []
+    fileinfo = str(sys.argv[1])
     cmdout = 'cmdout.txt'
     ##########################################
-    generate_cmd_file(fileinfo, cmdout ,proxylist)
+    generate_cmd_file(fileinfo, proxylist)
